@@ -6,11 +6,11 @@ debug = True
 
 class Generator:
     def __init__(self,
-                 n,
-                 gamma,
-                 beta,
-                 delta
-                 ):
+                 n: int,
+                 gamma: float,
+                 beta: float,
+                 delta: float
+                 ) -> ig.Graph():
         self.n = n
         self.gamma = gamma
         self.beta = beta
@@ -40,6 +40,12 @@ class Generator:
 
     @staticmethod
     def htriv(s, t):
+        """
+        A trivial h function
+        :param s: left weight
+        :param t: right weight
+        :return: boolean
+        """
         if abs(s - t) < 1:
             return True
         return False
@@ -67,6 +73,11 @@ class Generator:
 
     @staticmethod
     def make_vertices(n):
+        """
+        Creates a graph of n vertices.
+        :param n: graph size
+        :return: graph
+        """
         g = ig.Graph()
         g.add_vertices(n)
         # Make the graph and atributes
@@ -142,11 +153,19 @@ class Generator:
 
     @staticmethod
     def draw(g):
+        """
+        Draws the graph
+        :param g: g
+        :return: the picture
+        """
         visual_style = {
             "vertex_label": g.vs["coords"],
-            "edge_label": g.es["method"]
+            "edge_label": g.es["method"],
+            "vertex_size": 20,
+            #"bbox" : (g["n"],g["n"] ) #TODO
         }
-        ig.plot(g, layout=g.vs["coords"], **visual_style)
+        print(g["n"])
+        return ig.plot(g, layout=g.vs["coords"], **visual_style)
 
 
 if __name__ == '__main__':

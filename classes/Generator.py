@@ -1,52 +1,50 @@
-import numpy as np
 import igraph as ig
-
+import numpy as np
 
 debug = True
 
-class generator():
+
+class Generator:
     def __init__(self,
-            n,
-            gamma,
-            beta,
-            delta
-    ):
+                 n,
+                 gamma,
+                 beta,
+                 delta
+                 ):
         self.n = n
         self.gamma = gamma
         self.beta = beta
-        self.delta =delta
-        #self.g = ig.Graph()
-        generator.make_graph(self.n)
+        self.delta = delta
+        # self.g = ig.Graph()
+        self.g = self.make_graph()
 
-    # TODO
-    def hpa(s, t) -> bool:
+    def hpa(self, s, t) -> bool:
         """
         hpa function
         @param s: weight of left node
         @param t: weight of right node
         @return: True if hMax < 1
         """
-        h = 1 / beta * max(s, t) ** (1 - gamma) - min(s, t) ** gamma
+        h = 1 / self.beta * max(s, t) ** (1 - self.gamma) - min(s, t) ** self.gamma
         return h < 1
 
-
-    def hmax(s, t) -> bool:
+    def hmax(self, s, t) -> bool:
         """
         hMax function
         @param s: weight of left node
         @param t: weight of right node
         @return: True if hMax < 1
         """
-        h = (1 / beta) * max(s, t) ** (1 + gamma)
+        h = (1 / self.beta) * max(s, t) ** (1 + self.gamma)
         return h < 1
 
-
+    @staticmethod
     def htriv(s, t):
-        if (abs(s - t) < 1):
+        if abs(s - t) < 1:
             return True
         return False
 
-
+    @staticmethod
     def generate_weigths(amount):
         """
         Generates the weights
@@ -55,7 +53,7 @@ class generator():
         """
         return np.random.random(amount)
 
-
+    @staticmethod
     def generate_positions(size):
         """
         generates a list of `size`
@@ -67,30 +65,29 @@ class generator():
         ans = ans - 0.5 * size  # list in [-n/2,n/2
         return ans
 
-
+    @staticmethod
     def make_vertices(n):
         g = ig.Graph()
         g.add_vertices(n)
         # Make the graph and atributes
-        g.vs["x"] = generator.generate_positions(n)
-        g.vs["y"] = generator.generate_positions(n)
+        g.vs["x"] = Generator.generate_positions(n)
+        g.vs["y"] = Generator.generate_positions(n)
         coords = []
         for i in range(n):
             x = round(g.vs[i]["x"], 2)
             y = round(g.vs[i]["y"], 2)
             coords.append((x, y))
         g.vs["coords"] = coords
-        g.vs["weight"] = generator.generate_weigths(n)
+        g.vs["weight"] = Generator.generate_weigths(n)
         return g
 
-
-    def edges_triv(g):
+    def edges_triv(self, g):
         # Make edges
         for i in range(len(g.vs)):
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if generator.htriv(s["weight"], t["weight"]):
+                if self.htriv(s["weight"], t["weight"]):
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "triv"
                     if debug:
@@ -98,14 +95,13 @@ class generator():
 
         return g
 
-
-    def edges_hpa(g):
+    def edges_hpa(self, g):
         # Make edges
         for i in range(len(g.vs)):
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if generator.hpa(s["weight"], t["weight"]):
+                if self.hpa(s["weight"], t["weight"]):
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hpa"
                     if debug:
@@ -113,38 +109,38 @@ class generator():
 
         return g
 
-
-    def edges_hmax(g):
+    def edges_hmax(self, g):
         # Make edges
         for i in range(len(g.vs)):
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if generator.hmax(s["weight"], t["weight"]):
+                if self.hmax(s["weight"], t["weight"]):
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hmax"
                     if debug:
                         print("adding edge type hmax \n {} \n {}".format(s, t))
         return g
 
-
-    def make_graph(n):
-        g = generator.make_vertices(n)
-        g["delta"] = delta
-        g["gamma"] = gamma
-        g["beta"] = beta
-        g["n"] = n
-        generator.edges_triv(g)
-        generator.edges_hmax(g)
-        generator.edges_hpa(g)
+    def make_graph(self):
+        g = Generator.make_vertices(self.n)
+        g["delta"] = self.delta
+        g["gamma"] = self.gamma
+        g["beta"] = self.beta
+        g["n"] = self.n
+        Generator.edges_triv(self, g)
+        Generator.edges_hmax(self, g)
+        Generator.edges_hpa(self, g)
         print(ig.GraphSummary(g, verbosity=1,
                               print_edge_attributes=True,
                               # print_graph_attributes=True,
                               # print_vertex_attributes=True
                               ))
-        generator.draw(g)
+        Generator.draw(g)
 
+        return g
 
+    @staticmethod
     def draw(g):
         visual_style = {
             "vertex_label": g.vs["coords"],
@@ -155,9 +151,8 @@ class generator():
 
 if __name__ == '__main__':
     # parameters
-    delta = 0  # model parameter
-    gamma = 0.5  # model parameter
-    beta = 1  # model parameter
-    n = 20  # amount of nodes
-
-    generator.make_graph(5)
+    # delta = 0  # model parameter
+    # gamma = 0.5  # model parameter
+    # beta = 1  # model parameter
+    # n = 20  # amount of nodes
+    the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=20)

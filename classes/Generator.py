@@ -120,7 +120,7 @@ class Generator:
                 s = g.vs[i]
                 t = g.vs[j]
                 h = self.hpa(s["weight"], t["weight"])
-                if h * (s["x"] - t["x"]) < 1:
+                if h * abs(s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hpa"
                     if debug:
@@ -135,7 +135,7 @@ class Generator:
                 s = g.vs[i]
                 t = g.vs[j]
                 h = self.hmax(s["weight"], t["weight"])
-                if h * (s["x"] - t["x"]) < 1:
+                if h * abs(s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hmax"
                     if debug:

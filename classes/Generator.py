@@ -1,7 +1,7 @@
 import igraph as ig
 import numpy as np
 
-debug = True
+debug = False
 
 
 class Generator:
@@ -16,7 +16,7 @@ class Generator:
         self.beta = beta
         self.delta = delta
         # self.g = ig.Graph()
-        self.g = self.make_graph()
+        self.g, self.gtriv, self.ghma, self.hmax = self.make_graph()
 
     def hpa(self, s, t) -> bool:
         """
@@ -26,7 +26,7 @@ class Generator:
         @return: True if hMax < 1
         """
         h = 1 / self.beta * max(s, t) ** (1 - self.gamma) - min(s, t) ** self.gamma
-        return h < 1
+        return h
 
     def hmax(self, s, t) -> bool:
         """
@@ -36,7 +36,7 @@ class Generator:
         @return: True if hMax < 1
         """
         h = (1 / self.beta) * max(s, t) ** (1 + self.gamma)
-        return h < 1
+        return h
 
     @staticmethod
     def htriv(s, t):
@@ -46,9 +46,7 @@ class Generator:
         :param t: right weight
         :return: boolean
         """
-        if abs(s - t) < 1:
-            return True
-        return False
+        return 1
 
     @staticmethod
     def generate_weigths(amount):
@@ -83,13 +81,17 @@ class Generator:
         # Make the graph and atributes
         g.vs["x"] = Generator.generate_positions(n)
         g.vs["y"] = Generator.generate_positions(n)
+        g.vs["weight"] = Generator.generate_weigths(n)
         coords = []
+        cw = []
         for i in range(n):
             x = round(g.vs[i]["x"], 2)
             y = round(g.vs[i]["y"], 2)
+            w = round(g.vs[i]["weight"], 2)
             coords.append((x, y))
+            cw.append((x, w))
         g.vs["coords"] = coords
-        g.vs["weight"] = Generator.generate_weigths(n)
+        g.vs["coordWeight"] = cw
         return g
 
     def edges_triv(self, g):
@@ -98,7 +100,10 @@ class Generator:
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if self.htriv(s["weight"], t["weight"]):
+                h = self.htriv(s["weight"], t["weight"])
+                print(h * abs(s["x"] - t["x"])  )
+                if h * abs(s["x"] - t["x"]) < 1:
+                    print("ja", h * abs(s["x"] - t["x"]) , " is smaller than 1")
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "triv"
                     if debug:
@@ -112,7 +117,8 @@ class Generator:
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if self.hpa(s["weight"], t["weight"]):
+                h = self.hpa(s["weight"], t["weight"])
+                if h * (s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hpa"
                     if debug:
@@ -126,7 +132,8 @@ class Generator:
             for j in range(i + 1, len(g.vs)):
                 s = g.vs[i]
                 t = g.vs[j]
-                if self.hmax(s["weight"], t["weight"]):
+                h = self.hmax(s["weight"], t["weight"])
+                if h * (s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hmax"
                     if debug:
@@ -139,17 +146,15 @@ class Generator:
         g["gamma"] = self.gamma
         g["beta"] = self.beta
         g["n"] = self.n
-        Generator.edges_triv(self, g)
-        Generator.edges_hmax(self, g)
-        Generator.edges_hpa(self, g)
-        print(ig.GraphSummary(g, verbosity=1,
-                              print_edge_attributes=True,
-                              # print_graph_attributes=True,
-                              # print_vertex_attributes=True
-                              ))
-        Generator.draw(g)
+        gtriv = g.copy()
+        ghmax = g.copy()
+        ghma  = g.copy()
+        Generator.edges_triv(self, gtriv)
+        Generator.edges_hmax(self, ghmax)
+        Generator.edges_hpa(self, ghma)
 
-        return g
+
+        return (g, gtriv, ghmax, ghma)
 
     @staticmethod
     def draw(g):
@@ -159,10 +164,26 @@ class Generator:
         :return: the picture
         """
         visual_style = {
+            "vertex_label": g.vs["coordWeight"],
+            "edge_label": g.es["method"],
+            "vertex_size": 20,
+            # "bbox" : (g["n"],g["n"] ) #TODO
+        }
+        print(g["n"])
+        return ig.plot(g, layout=g.vs["coords"], **visual_style)
+
+    @staticmethod
+    def draw2D(g):
+        """
+        Draws the graph
+        :param g: g
+        :return: the picture
+        """
+        visual_style = {
             "vertex_label": g.vs["coords"],
             "edge_label": g.es["method"],
             "vertex_size": 20,
-            #"bbox" : (g["n"],g["n"] ) #TODO
+            # "bbox" : (g["n"],g["n"] ) #TODO
         }
         print(g["n"])
         return ig.plot(g, layout=g.vs["coords"], **visual_style)
@@ -175,3 +196,9 @@ if __name__ == '__main__':
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
     the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=20)
+    print(ig.GraphSummary(g, verbosity=1,
+                              print_edge_attributes=True,
+                              # print_graph_attributes=True,
+                              # print_vertex_attributes=True
+                              ))
+    Generator.draw(g)

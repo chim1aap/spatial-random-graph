@@ -64,6 +64,10 @@ if __name__ == '__main__':
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
     the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=100)
-    triangles = TriangleFinder(the_graph.g)
+    the_graph.gtriv
+    the_graph.ghma
+    Generator.draw(the_graph.gtriv)
+
+    triangles = TriangleFinder(the_graph.gtriv)
 
 

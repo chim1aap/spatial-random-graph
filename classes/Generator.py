@@ -101,9 +101,11 @@ class Generator:
                 s = g.vs[i]
                 t = g.vs[j]
                 h = self.htriv(s["weight"], t["weight"])
-                print(h * abs(s["x"] - t["x"])  )
+                if debug:
+                    print(h * abs(s["x"] - t["x"]))
                 if h * abs(s["x"] - t["x"]) < 1:
-                    print("ja", h * abs(s["x"] - t["x"]) , " is smaller than 1")
+                    if debug:
+                        print("ja", h * abs(s["x"] - t["x"]), " is smaller than 1")
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "triv"
                     if debug:
@@ -148,13 +150,12 @@ class Generator:
         g["n"] = self.n
         gtriv = g.copy()
         ghmax = g.copy()
-        ghma  = g.copy()
+        ghma = g.copy()
         Generator.edges_triv(self, gtriv)
         Generator.edges_hmax(self, ghmax)
         Generator.edges_hpa(self, ghma)
 
-
-        return (g, gtriv, ghmax, ghma)
+        return g, gtriv, ghmax, ghma
 
     @staticmethod
     def draw(g):
@@ -169,7 +170,6 @@ class Generator:
             "vertex_size": 20,
             # "bbox" : (g["n"],g["n"] ) #TODO
         }
-        print(g["n"])
         return ig.plot(g, layout=g.vs["coords"], **visual_style)
 
     @staticmethod
@@ -185,9 +185,17 @@ class Generator:
             "vertex_size": 20,
             # "bbox" : (g["n"],g["n"] ) #TODO
         }
-        print(g["n"])
         return ig.plot(g, layout=g.vs["coords"], **visual_style)
 
+
+    def simplegraph(self):
+        """
+        Simplest case
+        :return: a graph consisting of a single triangle + 2 lonely vertices.
+        """
+        g = ig.Graph.Full(3)
+        g.add_vertices(2)
+        return g
 
 if __name__ == '__main__':
     # parameters
@@ -196,9 +204,9 @@ if __name__ == '__main__':
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
     the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=20)
-    print(ig.GraphSummary(g, verbosity=1,
-                              print_edge_attributes=True,
-                              # print_graph_attributes=True,
-                              # print_vertex_attributes=True
-                              ))
-    Generator.draw(g)
+    print(ig.GraphSummary(the_graph.gtriv, verbosity=1,
+                          print_edge_attributes=True,
+                          # print_graph_attributes=True,
+                          # print_vertex_attributes=True
+                          ))
+    Generator.draw(the_graph.gtriv)

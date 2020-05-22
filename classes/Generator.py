@@ -1,7 +1,8 @@
 import igraph as ig
 import numpy as np
+import logging, sys
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 
-debug = False
 
 
 class Generator:
@@ -16,6 +17,7 @@ class Generator:
         self.beta = beta
         self.delta = delta
         # self.g = ig.Graph()
+        logging.info("Graph generation started.")
         self.g, self.gtriv, self.ghma, self.hmax = self.make_graph()
 
     def hpa(self, s, t) -> bool:
@@ -101,15 +103,12 @@ class Generator:
                 s = g.vs[i]
                 t = g.vs[j]
                 h = self.htriv(s["weight"], t["weight"])
-                if debug:
-                    print(h * abs(s["x"] - t["x"]))
+                logging.debug(h * abs(s["x"] - t["x"]))
                 if h * abs(s["x"] - t["x"]) < 1:
-                    if debug:
-                        print("ja", h * abs(s["x"] - t["x"]), " is smaller than 1")
+                    logging.debug("ja", h * abs(s["x"] - t["x"]), " is smaller than 1")
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "triv"
-                    if debug:
-                        print("adding edge type triv \n {} \n {}".format(s, t))
+                    logging.debug("adding edge type triv \n {} \n {}".format(s, t))
 
         return g
 
@@ -123,8 +122,7 @@ class Generator:
                 if h * abs(s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hpa"
-                    if debug:
-                        print("adding edge type hpa \n {} \n {}".format(s, t))
+                    logging.debug("adding edge type hpa \n {} \n {}".format(s, t))
 
         return g
 
@@ -138,8 +136,7 @@ class Generator:
                 if h * abs(s["x"] - t["x"]) < 1:
                     edge = g.add_edge(s, t)  # add_edges is mss sneller.
                     edge["method"] = "hmax"
-                    if debug:
-                        print("adding edge type hmax \n {} \n {}".format(s, t))
+                    logging.debug("adding edge type hmax \n {} \n {}".format(s, t))
         return g
 
     def make_graph(self):

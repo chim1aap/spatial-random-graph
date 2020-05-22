@@ -1,9 +1,8 @@
 import igraph as ig
 import numpy as np
 from classes.Generator import Generator
-
-debug = True
-
+import logging, sys
+logging.basicConfig(stream=sys.stderr, level=logging.INFO) #set to debug for printing debug messages
 
 class TriangleFinder:
     def __init__(self,
@@ -29,8 +28,7 @@ class TriangleFinder:
 
     def findTriangles(self):
         for v in self.graph.vs:
-            if debug:
-                print(v)
+            logging.debug(v)
             # note: the size of this neighbours list is the degree of the node
             neighbours = v.neighbors()
             numOfTriangles = 0
@@ -51,9 +49,8 @@ class TriangleFinder:
                             #raise Exception("Trying to look for triangle with two identical nodes")
 
                 clusterCoefficient = 2*numOfTriangles / (len(neighbours) * (len(neighbours)-1) )
-                if debug:
-                    print(numOfTriangles)
-                    print(clusterCoefficient)
+                logging.debug("The number of triangles is {}".format(numOfTriangles))
+                logging.debug("The clusterCoefficient is {}".format(clusterCoefficient))
             else:
                 clusterCoefficient = 0
 

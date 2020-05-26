@@ -39,8 +39,8 @@ class TriangleFinder:
                 # and checking if said neighbours are themselves connected
                 b=len(neighbours)
 
-                for n1 in neighbours :
-                    for n2 in neighbours:
+                for n1 in range(len(neighbours)):
+                    for n2 in range(n1 + 1, len(neighbours)):
                         if n1 != n2:
                             if self.graph.get_eid(n1, n2, directed=False, error=True) != -1:
                                 numOfTriangles = numOfTriangles + 1

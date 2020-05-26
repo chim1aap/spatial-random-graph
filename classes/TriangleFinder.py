@@ -41,15 +41,16 @@ class TriangleFinder:
                 # and checking if said neighbours are themselves connected
                 b=len(neighbours)
 
-                for n1 in range(len(neighbours)):
-                    for n2 in range(n1 + 1, len(neighbours)):
+                for n1 in neighbours:
+                    for n2 in neighbours:
                         if n1 != n2:
-                            if self.graph.get_eid(n1, n2, directed=False, error=True) != -1:
+                            if self.graph.get_eid(n1, n2, directed=False, error=False) != -1:
                                 numOfTriangles = numOfTriangles + 1
                         else:
                             pass # Fixing this would mean messing with a lot of index stuff. And it should only happen once of every vertex
                             #raise Exception("Trying to look for triangle with two identical nodes")
 
+                numOfTriangles = numOfTriangles/2 #all triangles get coutned twice
                 clusterCoefficient = 2*numOfTriangles / (len(neighbours) * (len(neighbours)-1) )
                 if debug:
                     print(numOfTriangles)
@@ -76,6 +77,6 @@ if __name__ == '__main__':
     the_graph.ghma
     #Generator.draw(the_graph.gtriv)
 
-    triangles = TriangleFinder(the_graph.simplegraph())
+    triangles = TriangleFinder(the_graph.gtriv)
 
 

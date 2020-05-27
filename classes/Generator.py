@@ -10,12 +10,10 @@ class Generator:
                  n: int,
                  gamma: float,
                  beta: float,
-                 delta: float
                  ) -> ig.Graph():
         self.n = n
         self.gamma = gamma
         self.beta = beta
-        self.delta = delta
         # self.g = ig.Graph()
         logging.info("Graph generation started.")
         self.g, self.gtriv, self.ghma, self.hmax = self.make_graph()
@@ -141,7 +139,6 @@ class Generator:
 
     def make_graph(self):
         g = Generator.make_vertices(self.n)
-        g["delta"] = self.delta
         g["gamma"] = self.gamma
         g["beta"] = self.beta
         g["n"] = self.n
@@ -196,11 +193,10 @@ class Generator:
 
 if __name__ == '__main__':
     # parameters
-    # delta = 0  # model parameter
     # gamma = 0.5  # model parameter
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
-    the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=20)
+    the_graph = Generator(gamma=0.5, beta=1, n=20)
     print(ig.GraphSummary(the_graph.gtriv, verbosity=1,
                           print_edge_attributes=True,
                           # print_graph_attributes=True,

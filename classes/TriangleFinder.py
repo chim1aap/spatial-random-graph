@@ -4,6 +4,7 @@ from classes.Generator import Generator
 import logging, sys
 logging.basicConfig(stream=sys.stderr, level=logging.INFO) #set to debug for printing debug messages
 
+# logging.basicConfig(stream=sys.stderr, level=logging.DEBUG) #set to debug for printing debug messages
 class TriangleFinder:
     def __init__(self,
                  graph: ig.Graph()
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     # gamma = 0.5  # model parameter
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
-    the_graph = Generator(delta=0.5, gamma=0.5, beta=1, n=10)
+    the_graph = Generator(gamma=0.5, beta=1, n=10)
     the_graph.gtriv
     the_graph.ghma
     #Generator.draw(the_graph.gtriv)

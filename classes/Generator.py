@@ -16,7 +16,7 @@ class Generator:
         self.beta = beta
         # self.g = ig.Graph()
         logging.info("Graph generation started.")
-        self.g, self.gtriv, self.ghma, self.hmax = self.make_graph()
+        self.g, self.gtriv, self.hmax, self.ghpa = self.make_graph()
 
     def hpa(self, s, t) -> bool:
         """
@@ -144,12 +144,12 @@ class Generator:
         g["n"] = self.n
         gtriv = g.copy()
         ghmax = g.copy()
-        ghma = g.copy()
+        ghpa = g.copy()
         Generator.edges_triv(self, gtriv)
         Generator.edges_hmax(self, ghmax)
-        Generator.edges_hpa(self, ghma)
+        Generator.edges_hpa(self, ghpa)
 
-        return g, gtriv, ghmax, ghma
+        return g, gtriv, ghmax, ghpa
 
     @staticmethod
     def draw(g):

@@ -22,10 +22,14 @@ class TriangleFinder:
 
         # compute the average cluster coefficient by degree
         self.avgClusterCoefficient = [-1] * graph.vcount()
+        self.avgTotalClusterCoefficient = 0
         for i in range(graph.vcount()):
             if self.numOfNodesWithDegree[i] != 0:
                 self.avgClusterCoefficient[i] = self.sumOfClusterCoefficients[i] / self.numOfNodesWithDegree[i]
-        print(self.avgClusterCoefficient)
+                self.avgTotalClusterCoefficient = self.avgTotalClusterCoefficient + self.sumOfClusterCoefficients[i]
+        self.avgTotalClusterCoefficient = self.avgTotalClusterCoefficient/(graph.vcount())
+        #print(self.avgClusterCoefficient)
+        #print(self.avgTotalClusterCoefficient)
 
     def findTriangles(self):
         for v in self.graph.vs:
@@ -70,11 +74,98 @@ if __name__ == '__main__':
     # gamma = 0.5  # model parameter
     # beta = 1  # model parameter
     # n = 20  # amount of nodes
-    the_graph = Generator(gamma=0.5, beta=1, n=10)
-    the_graph.gtriv
-    the_graph.ghma
+    the_graph = Generator(gamma=(1.0+2/3)/2, beta=1, n=100)
     #Generator.draw(the_graph.gtriv)
 
-    triangles = TriangleFinder(the_graph.gtriv)
+    triangles1 = TriangleFinder(the_graph.gtriv)
+    triangles2 = TriangleFinder(the_graph.ghpa)
+    triangles3 = TriangleFinder(the_graph.ghmax)
+
+   # print(triangles1.avgClusterCoefficient)
+
+    graphSizesToTry = [100, 250, 500, 1000, 2500]#, 5000, 10000]
+    gammasToTry = [(0.5+2/3)/2, (1.0+2/3)/2]
+    betasToTry = [1]
+    numberOfRepeats = 10
+    for beta0 in betasToTry:
+        for gamma0 in gammasToTry:
+            for n0 in graphSizesToTry:
+
+                triangles1totalcoeffs = [0.0] * n0
+                triangles2totalcoeffs = [0.0] * n0
+                triangles3totalcoeffs = [0.0] * n0
+
+                triangles1totalnodesofdeg = [0.0] *n0
+                triangles2totalnodesofdeg = [0.0] *n0
+                triangles3totalnodesofdeg = [0.0] *n0
+
+                #procedure for repeats is to run numberofrepeats of these simulations
+                #then we sum up the clustercoeff for all nodes in all generated graphs(by degree)
+                #and divide by number of nodes
+                for i in range(numberOfRepeats):
+                    the_graph = Generator(gamma=gamma0, beta=beta0, n=n0)
+                    #Generator.draw(the_graph.gtriv)
+
+                    triangles1 = TriangleFinder(the_graph.gtriv)
+                    triangles2 = TriangleFinder(the_graph.ghpa)
+                    triangles3 = TriangleFinder(the_graph.ghmax)
+
+                    for j in range(n0):
+                        triangles1totalcoeffs[j] += triangles1.sumOfClusterCoefficients[j]
+                        triangles2totalcoeffs[j] += triangles2.sumOfClusterCoefficients[j]
+                        triangles3totalcoeffs[j] += triangles3.sumOfClusterCoefficients[j]
+
+                        triangles1totalnodesofdeg[j] += triangles1.numOfNodesWithDegree[j]
+                        triangles2totalnodesofdeg[j] += triangles2.numOfNodesWithDegree[j]
+                        triangles3totalnodesofdeg[j] += triangles3.numOfNodesWithDegree[j]
+
+                triangles1avgcoeffs = [0.0]*n0
+                triangles2avgcoeffs = [0.0]*n0
+                triangles3avgcoeffs = [0.0]*n0
+                for i in range(n0):
+                    if triangles1totalnodesofdeg[i] != 0:
+                        triangles1avgcoeffs[i] = triangles1totalcoeffs[i]/triangles1totalnodesofdeg[i]
+                    else:
+                        triangles1avgcoeffs[i] = -1
+
+                    if triangles2totalnodesofdeg[i] != 0:
+                        triangles2avgcoeffs[i] = triangles2totalcoeffs[i]/triangles2totalnodesofdeg[i]
+                    else:
+                        triangles2avgcoeffs[i] = -1
+
+                    if triangles3totalnodesofdeg[i] != 0:
+                        triangles3avgcoeffs[i] = triangles3totalcoeffs[i]/triangles3totalnodesofdeg[i]
+                    else:
+                        triangles3avgcoeffs[i] = -1
+
+                gtrivCoeffPerDegGraph = "\n\n\n\n\ngtriv n=%d gamma=%f beta=%f\n{" %(triangles1.graph.vcount(), gamma0, beta0)
+                #for coeff in triangles1.avgClusterCoefficient:
+                for deg in range(len(triangles1.avgClusterCoefficient)):
+                    if triangles1avgcoeffs[deg] != -1:
+                        gtrivCoeffPerDegGraph += "{%d,%f}," %(deg, triangles1avgcoeffs[deg])
+                gtrivCoeffPerDegGraph += "}"
+                sys.stdout.write(gtrivCoeffPerDegGraph)
+                sys.stdout.write("\n\n total number of nodes with deg")
+                print(triangles1totalnodesofdeg)
+
+                gtrivCoeffPerDegGraph = "\n\n\n\n\nghpa n=%d gamma=%f beta=%f\n{" %(triangles2.graph.vcount(), gamma0, beta0)
+                #for coeff in triangles1.avgClusterCoefficient:
+                for deg in range(len(triangles2.avgClusterCoefficient)):
+                    if triangles2avgcoeffs[deg] != -1:
+                        gtrivCoeffPerDegGraph += "{%d,%f}," %(deg, triangles2avgcoeffs[deg])
+                gtrivCoeffPerDegGraph += "}"
+                sys.stdout.write(gtrivCoeffPerDegGraph)
+                sys.stdout.write("\n\n total number of nodes with deg")
+                print(triangles2totalnodesofdeg)
+
+                gtrivCoeffPerDegGraph = "\n\n\n\n\nghmax n=%d gamma=%f beta=%f\n{" %(triangles3.graph.vcount(), gamma0, beta0)
+                #for coeff in triangles1.avgClusterCoefficient:
+                for deg in range(len(triangles3.avgClusterCoefficient)):
+                    if triangles3avgcoeffs[deg] != -1:
+                        gtrivCoeffPerDegGraph += "{%d,%f}," %(deg, triangles3avgcoeffs[deg])
+                gtrivCoeffPerDegGraph += "}"
+                sys.stdout.write(gtrivCoeffPerDegGraph)
+                sys.stdout.write("\n\n total number of nodes with deg")
+                print(triangles3totalnodesofdeg)
 
 

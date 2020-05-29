@@ -16,7 +16,7 @@ class Generator:
         self.beta = beta
         # self.g = ig.Graph()
         logging.info("Graph generation started.")
-        self.g, self.gtriv, self.hmax, self.ghpa = self.make_graph()
+        self.g, self.gtriv, self.ghmax, self.ghpa = self.make_graph()
 
     def hpa(self, s, t) -> bool:
         """
